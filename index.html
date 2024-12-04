@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lettre d'Amour</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #06141B, #11212D);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .hearts-container,
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .heart,
+        .star {
+            position: absolute;
+            font-size: 20px;
+            opacity: 1;
+            animation: explosion 3s ease-out forwards;
+        }
+
+        .heart {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .star {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 5px;
+            /* Taille réduite pour les étoiles */
+            animation: star-explosion 3s ease-out forwards;
+        }
+
+        @keyframes explosion {
+            0% {
+                transform: scale(0.1) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes star-explosion {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(2) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .envelope {
+            width: 350px;
+            height: 250px;
+            background: #253745;
+            border: 3px solid #4A5C6A;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: all 0.6s ease;
+            z-index: 20;
+        }
+
+        .center {
+            position: absolute;
+            top: 50%;
+            left: 8vw;
+            transform: translate(-50%, -50%);
+            padding: 100px;
+            z-index: 1;
+            overflow: hidden;
+            transition: opacity 0.6s ease;
+        }
+
+        .envelope-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #253745;
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #4A5C6A;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .envelope.open {
+            transform: rotateY(180deg);
+        }
+
+        .center.hidden {
+            opacity: 0;
+            /* Cache le contenu à l'intérieur de l'enveloppe */
+        }
+
+        .corazon {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background: #e54a27;
+            transform: rotate(45deg) translate(10px, 10px);
+            animation: animationHeart 1s ease-in-out infinite;
+            left: 20%;
+            z-index: 3;
+        }
+
+        .corazon::before {
+            content: '';
+            width: 100%;
+            height: 100%;
+            background: #e54a27;
+            position: absolute;
+            top: -50%;
+            left: 0;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .corazon:after {
+            content: '';
+            width: 100%;
+            height: 100%;
+            background: #e54a27;
+            position: absolute;
+            bottom: 0%;
+            right: 50%;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        @keyframes animationHeart {
+            0% {
+                transform: rotate(45deg) translate(10px, 10px) scale(1);
+            }
+
+            25% {
+                transform: rotate(45deg) translate(10px, 10px) scale(1);
+            }
+
+            30% {
+                transform: rotate(45deg) translate(10px, 10px) scale(1.4);
+            }
+
+            50% {
+                transform: rotate(45deg) translate(10px, 10px) scale(1.2);
+            }
+
+            75% {
+                transform: rotate(45deg) translate(10px, 10px) scale(1.4);
+            }
+
+            90% {
+                transform: rotate(45deg) translate(10px, 10px) scale(1);
+            }
+
+            100% {
+                transform: rotate(45deg) translate(10px, 10px) scale(1);
+            }
+        }
+
+        .face {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+        }
+
+        .eyeL {
+            width: 35px;
+            height: 10%;
+            background: transparent;
+            position: absolute;
+            top: 45%;
+            left: 35%;
+            border-radius: 50%;
+            z-index: 20;
+            box-shadow: 0px -10px #474747;
+            animation: faceanima 1s linear infinite;
+        }
+
+        .eyeR {
+            width: 35px;
+            height: 10%;
+            background: transparent;
+            position: absolute;
+            top: 45%;
+            left: 65%;
+            border-radius: 50%;
+            z-index: 20;
+            box-shadow: 0px -10px #474747;
+            animation: faceanima 1s linear infinite;
+        }
+
+        .eyeR:before {
+            content: '';
+            width: 100%;
+            height: 50%;
+            background: #ffffff83;
+            transform: rotate(45deg);
+            position: absolute;
+            top: -90%;
+            left: 70%;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+        }
+
+        .mouth {
+            width: 35px;
+            height: 10%;
+            background: transparent;
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            border-radius: 50%;
+            z-index: 20;
+            box-shadow: 0px 10px #474747;
+            animation: faceanima 1s linear infinite;
+        }
+
+        @keyframes faceanima {
+            0% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1);
+            }
+
+            30% {
+                transform: scale(1.5);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            75% {
+                transform: scale(1.5);
+            }
+
+            90% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        h2,
+        p {
+            color: #d0d0cc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hearts-container" id="hearts-container"></div>
+    <div class="stars-container" id="stars-container"></div>
+
+    <div class="envelope" onclick="toggleLetter(this)">
+        <div class="center">
+            <div class="corazon"></div>
+            <span class="face eyeL"></span>
+            <span class="face eyeR"></span>
+            <span class="face mouth"></span>
+        </div>
+        <div class="envelope-back">
+            <div>
+                <h2>Mon BB d'amour</h2>
+                <p>
+                    Je t'aime plus que tout, Ines. Tu es la personne qui occupe toutes mes pensées.<br>
+                    Chaque jour à tes côtés est un bonheur, et chaque instant sans toi me manque.<br>
+                    Je t'aime, mon MBB, tout simplement.❤️❤️❤️
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createExplosion(type) {
+            const container = document.getElementById(type === 'heart' ? 'hearts-container' : 'stars-container');
+            const count = type === 'heart' ? 800 : 800;
+            const symbol = type === 'heart' ? '❤️' : '*';
+
+            for (let i = 0; i < count; i++) {
+                const element = document.createElement('div');
+                element.classList.add(type);
+                element.textContent = symbol;
+
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * window.innerWidth;
+
+                element.style.left = `${50 + Math.cos(angle) * radius}%`;
+                element.style.top = `${50 + Math.sin(angle) * radius}%`;
+                element.style.animationDelay = `${Math.random() * 1}s`;
+                element.style.fontSize = `${Math.random() * 50 + 10}px`;
+
+                container.appendChild(element);
+
+                setTimeout(() => element.remove(), 3000);
+            }
+        }
+
+        function toggleLetter(envelope) {
+            envelope.classList.toggle('open');
+            const center = envelope.querySelector('.center');
+            center.classList.toggle('hidden');
+            createExplosion('heart');
+            createExplosion('star');
+        }
+    </script>
+</body>
+
+</html>
