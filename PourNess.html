@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Une grosse boîte pour toi</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Cormorant+Garamond:wght@500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg1: #06141B;
+      --bg2: #16304a;
+      --glow: rgba(240, 190, 120, .18);
+      --hint: #a9bccb;
+      --box: #b4283c;
+      --rib: #f0cf94;
+      --rib-d: #c9a366;
+      --paper: #fbf3e4;
+      --ink: #3b2a2a;
+      --s: min(340px, 70vw, 38vh);
+      --u: calc(var(--s) / 100);
+      --h: calc(var(--s)*.62);
+      --L: calc(var(--s) + 22px);
+      --lh: calc(var(--s)*.17);
+      --rw: calc(var(--s)*.15);
+      --nw: calc(var(--s)*.9);
+      --nh: calc(var(--s)*1.16);
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    @media (prefers-color-scheme:light) {
+      :root:not([data-theme="dark"]) {
+        --bg1: #f6e9dc;
+        --bg2: #e6c9bb;
+        --glow: rgba(255, 255, 255, .7);
+        --hint: #6b4f4f
+      }
+    }
+
+    :root[data-theme="light"] {
+      --bg1: #f6e9dc;
+      --bg2: #e6c9bb;
+      --glow: rgba(255, 255, 255, .7);
+      --hint: #6b4f4f
+    }
+
+    :root[data-theme="dark"] {
+      --bg1: #06141B;
+      --bg2: #16304a;
+      --glow: rgba(240, 190, 120, .18);
+      --hint: #a9bccb
+    }
+
+    html {
+      height: 100%;
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      background: radial-gradient(ellipse at 50% 70%, var(--glow), transparent 62%), linear-gradient(160deg, var(--bg1), var(--bg2));
+      background-color: var(--bg1);
+      font-family: 'Cormorant Garamond', Georgia, serif
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      perspective: 1500px;
+      perspective-origin: 50% 35%;
+      cursor: grab;
+      outline: none
+    }
+
+    .stage:active {
+      cursor: grabbing
+    }
+
+    .ground {
+      position: absolute;
+      left: 50%;
+      top: calc(50% + var(--h)/2 + 52px);
+      width: calc(var(--s)*1.5);
+      height: calc(var(--s)*.4);
+      margin-left: calc(var(--s)*-.75);
+      background: rgba(0, 0, 0, .4);
+      filter: blur(22px);
+      border-radius: 50%
+    }
+
+    .world {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+      transform: translateY(46px) rotateX(-22deg) rotateY(-30deg);
+      transition: transform .9s cubic-bezier(.3, .7, .2, 1), --rx .9s cubic-bezier(.3, .7, .2, 1), --ry .9s cubic-bezier(.3, .7, .2, 1)
+    }
+
+    .world.drag {
+      transition: none
+    }
+
+    #box {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d
+    }
+
+    .f {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background-color: var(--box)
+    }
+
+    .in {
+      background-color: #5a1220
+    }
+
+    .rb {
+      background-image: linear-gradient(90deg, transparent calc(50% - var(--rw)/2), var(--rib) calc(50% - var(--rw)/2), var(--rib) calc(50% + var(--rw)/2), transparent calc(50% + var(--rw)/2)), radial-gradient(circle, rgba(255, 255, 255, .17) 0 20%, transparent 22%);
+      background-size: 100% 100%, calc(var(--s)*.09) calc(var(--s)*.09)
+    }
+
+    .top {
+      background-image:
+        linear-gradient(90deg, transparent calc(50% - var(--rw)/2), var(--rib) calc(50% - var(--rw)/2), var(--rib) calc(50% + var(--rw)/2), transparent calc(50% + var(--rw)/2)),
+        linear-gradient(180deg, transparent calc(50% - var(--rw)/2), var(--rib) calc(50% - var(--rw)/2), var(--rib) calc(50% + var(--rw)/2), transparent calc(50% + var(--rw)/2))
+    }
+
+    .floor {
+      background-color: #3d0c17
+    }
+
+    .under {
+      background-color: #6d1727
+    }
+
+    /* Couvercle articulé au bord arrière */
+    .pivot {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+      transform: translate3d(0, calc(var(--h)/-2), calc(var(--s)/-2)) rotateX(0deg);
+      transition: transform 1.2s cubic-bezier(.45, -.15, .25, 1) .8s
+    }
+
+    .open .pivot {
+      transform: translate3d(0, calc(var(--h)/-2), calc(var(--s)/-2)) rotateX(118deg);
+      transition: transform 1.3s cubic-bezier(.45, -.15, .25, 1) 0s
+    }
+
+    .lid {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+      transform: translate3d(0, calc(var(--lh)/-2), calc(var(--s)/2))
+    }
+
+    /* Nœud */
+    .bow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-style: preserve-3d;
+      transform: translateY(calc(var(--lh)/-2))
+    }
+
+    .pair {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-style: preserve-3d
+    }
+
+    .pair.b {
+      transform: rotateY(90deg)
+    }
+
+    .loop {
+      position: absolute;
+      top: calc(var(--s)*-.17);
+      width: calc(var(--s)*.21);
+      height: calc(var(--s)*.14);
+      border: calc(var(--s)*.032) solid var(--rib);
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px var(--rib-d), inset 0 0 0 1px var(--rib-d)
+    }
+
+    .loop.l {
+      right: 0;
+      transform-origin: 100% 100%;
+      transform: rotateZ(-24deg)
+    }
+
+    .loop.r {
+      left: 0;
+      transform-origin: 0 100%;
+      transform: rotateZ(24deg)
+    }
+
+    .knot {
+      position: absolute;
+      width: calc(var(--s)*.075);
+      height: calc(var(--s)*.075);
+      left: calc(var(--s)*-.0375);
+      top: calc(var(--s)*-.075);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff3d6, var(--rib) 45%, var(--rib-d))
+    }
+
+    /* Chat et fleurs */
+    @property --rx {
+      syntax: '<number>';
+      inherits: true;
+      initial-value: -22
+    }
+
+    @property --ry {
+      syntax: '<number>';
+      inherits: true;
+      initial-value: -30
+    }
+
+    .pop {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-style: preserve-3d;
+      opacity: 0;
+      transform: translate3d(calc(var(--x)*var(--u)), calc((var(--y) + 46)*var(--u)), calc(var(--z)*var(--u)));
+      transition: transform .5s ease-in, opacity .3s .2s
+    }
+
+    .open .pop {
+      opacity: 1;
+      transform: translate3d(calc(var(--x)*var(--u)), calc(var(--y)*var(--u)), calc(var(--z)*var(--u)));
+      transition: transform 1s cubic-bezier(.2, 1.5, .4, 1) var(--dl), opacity .3s var(--dl)
+    }
+
+    .bb {
+      transform-style: preserve-3d;
+      transform: rotateY(calc(var(--ry)*-1deg)) rotateX(calc(var(--rx)*-1deg))
+    }
+
+    /* Décorations */
+    .lbl {
+      position: absolute;
+      left: 50%;
+      bottom: 16%;
+      transform: translateX(-50%) rotate(-4deg);
+      white-space: nowrap;
+      background: #fff8ea;
+      color: var(--box);
+      font-family: 'Dancing Script', cursive;
+      font-weight: 700;
+      font-size: calc(var(--s)*.07);
+      padding: .1em .55em;
+      border-radius: 6px;
+      border: 1px dashed var(--box);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, .3)
+    }
+
+    .stk {
+      position: absolute;
+      font-weight: 400;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, .35)
+    }
+
+    .stk.a {
+      left: 12%;
+      top: 20%;
+      font-size: calc(var(--s)*.12);
+      color: #ffe3a3;
+      transform: rotate(-14deg)
+    }
+
+    .stk.b {
+      right: 12%;
+      top: 26%;
+      font-size: calc(var(--s)*.09);
+      color: #fff;
+      transform: rotate(10deg)
+    }
+
+    .stk.c {
+      left: 16%;
+      bottom: 14%;
+      font-size: calc(var(--s)*.1);
+      color: #ffc6d2;
+      transform: rotate(8deg)
+    }
+
+    .rug {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: calc(var(--s)*1.75);
+      height: calc(var(--s)*1.75);
+      margin: calc(var(--s)*-.875) 0 0 calc(var(--s)*-.875);
+      border-radius: 50%;
+      transform: translateY(calc(var(--h)/2 + 1px)) rotateX(90deg);
+      border: calc(var(--s)*.014) dotted #fff3d6;
+      background: repeating-radial-gradient(circle, #f7d3da 0 calc(var(--s)*.05), #ee9fb0 calc(var(--s)*.05) calc(var(--s)*.1));
+      box-shadow: 0 0 0 calc(var(--s)*.02) rgba(255, 255, 255, .18)
+    }
+
+    .fx {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-style: preserve-3d;
+      font-size: var(--u);
+      transform: translate3d(calc(var(--x)*var(--u)), calc(var(--y)*var(--u)), calc(var(--z)*var(--u)))
+    }
+
+    .sp {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      line-height: 1;
+      text-shadow: 0 0 8px currentColor;
+      animation: tw 3.4s ease-in-out infinite
+    }
+
+    .open .sp {
+      animation-name: twd
+    }
+
+    @keyframes tw {
+
+      0%,
+      100% {
+        opacity: .4;
+        transform: translate(-50%, -50%) scale(.8)
+      }
+
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -30%) scale(1.15)
+      }
+    }
+
+    @keyframes twd {
+
+      0%,
+      100% {
+        opacity: .08
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .sky {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0
+    }
+
+    .sky i {
+      position: absolute;
+      font-style: normal;
+      line-height: 1;
+      animation: tw2 var(--d) ease-in-out infinite
+    }
+
+    .sky b {
+      position: absolute;
+      bottom: -40px;
+      font-weight: 400;
+      opacity: 0;
+      animation: up var(--d) linear infinite
+    }
+
+    @keyframes tw2 {
+
+      0%,
+      100% {
+        opacity: .15;
+        transform: scale(.7)
+      }
+
+      50% {
+        opacity: .9;
+        transform: scale(1.2)
+      }
+    }
+
+    @keyframes up {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0)
+      }
+
+      10% {
+        opacity: .6
+      }
+
+      50% {
+        transform: translate(26px, -55vh)
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-18px, -115vh)
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+
+      .sp,
+      .sky i,
+      .sky b {
+        animation: none
+      }
+    }
+
+    /* Le mot */
+    .note {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--nw);
+      height: var(--nh);
+      margin: calc(var(--nh)/-2) 0 0 calc(var(--nw)/-2);
+      transform-style: preserve-3d;
+      opacity: 0;
+      transform: translate3d(0, calc(var(--h)*.12), 0) scale(.45);
+      transition: transform 1s cubic-bezier(.55, 0, .7, .4), opacity .4s .6s
+    }
+
+    .open .note {
+      opacity: 1;
+      transform: translate3d(0, calc(var(--h)/-2 + 26px - var(--nh)/2), 0) scale(1);
+      transition: transform 1.8s cubic-bezier(.2, 1.25, .35, 1) .9s, opacity .5s .9s
+    }
+
+    .open .nf {
+      animation: sway 5s ease-in-out 2.8s infinite
+    }
+
+    @keyframes sway {
+
+      0%,
+      100% {
+        transform: translateY(0) rotateZ(-.8deg)
+      }
+
+      50% {
+        transform: translateY(-7px) rotateZ(.8deg)
+      }
+    }
+
+    .nf,
+    .nb {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background-color: var(--paper);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .3 0 0 0 0 .2 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), linear-gradient(180deg, #fffaf0, #f5ebd7);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, .8) inset, 0 2px 4px rgba(0, 0, 0, .25), 0 16px 38px rgba(0, 0, 0, .4)
+    }
+
+    .nb {
+      transform: rotateY(180deg)
+    }
+
+    .stamp {
+      position: absolute;
+      right: calc(var(--s)*.06);
+      bottom: calc(var(--s)*.14);
+      width: calc(var(--s)*.17);
+      height: calc(var(--s)*.17);
+      border-radius: 50%;
+      border: calc(var(--s)*.009) solid rgba(190, 30, 55, .8);
+      box-shadow: inset 0 0 0 calc(var(--s)*.014) #fffaf0, inset 0 0 0 calc(var(--s)*.019) rgba(190, 30, 55, .55);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(190, 30, 55, .82);
+      transform: rotate(-14deg);
+      filter: url(#rough);
+      pointer-events: none
+    }
+
+    .stamp span {
+      font-size: calc(var(--s)*.085);
+      line-height: 1
+    }
+
+    .tape {
+      position: absolute;
+      top: calc(var(--s)*-.028);
+      left: 50%;
+      width: calc(var(--s)*.3);
+      height: calc(var(--s)*.07);
+      margin-left: calc(var(--s)*-.15);
+      transform: rotate(-3deg);
+      background: repeating-linear-gradient(135deg, rgba(244, 160, 180, .88) 0 calc(var(--s)*.014), rgba(255, 214, 222, .88) calc(var(--s)*.014) calc(var(--s)*.028));
+      box-shadow: 0 2px 4px rgba(0, 0, 0, .22);
+      clip-path: polygon(0 0, 100% 0, 98% 25%, 100% 50%, 98% 75%, 100% 100%, 0 100%, 2% 75%, 0 50%, 2% 25%);
+      pointer-events: none
+    }
+
+    .d {
+      position: absolute;
+      pointer-events: none;
+      font-style: normal;
+      line-height: 1
+    }
+
+    .d1 {
+      left: calc(var(--s)*.065);
+      top: calc(var(--s)*.075);
+      font-size: calc(var(--s)*.06);
+      color: #e58aa0;
+      transform: rotate(-15deg)
+    }
+
+    .d2 {
+      right: calc(var(--s)*.07);
+      top: calc(var(--s)*.075);
+      font-size: calc(var(--s)*.05);
+      color: #e0a63e;
+      transform: rotate(10deg)
+    }
+
+    .d3 {
+      right: calc(var(--s)*.125);
+      top: calc(var(--s)*.14);
+      font-size: calc(var(--s)*.03);
+      color: #e54a27;
+      transform: rotate(15deg)
+    }
+
+    .d4 {
+      left: calc(var(--s)*.055);
+      top: 42%;
+      font-size: calc(var(--s)*.035);
+      color: #f08aa0;
+      transform: rotate(-20deg)
+    }
+
+    .d5 {
+      right: calc(var(--s)*.055);
+      top: 50%;
+      font-size: calc(var(--s)*.035);
+      color: #e0a63e
+    }
+
+    .d6 {
+      left: calc(var(--s)*.065);
+      bottom: calc(var(--s)*.065);
+      font-size: calc(var(--s)*.06);
+      color: #e58aa0;
+      transform: rotate(10deg)
+    }
+
+    .d7 {
+      left: calc(var(--s)*.135);
+      bottom: calc(var(--s)*.1);
+      font-size: calc(var(--s)*.035);
+      color: #e54a27;
+      transform: rotate(-12deg)
+    }
+
+    .d8 {
+      right: calc(var(--s)*.25);
+      bottom: calc(var(--s)*.23);
+      font-size: calc(var(--s)*.03);
+      color: #e0a63e
+    }
+
+    .stamp small {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 600;
+      font-size: calc(var(--s)*.026);
+      letter-spacing: .18em;
+      margin-top: calc(var(--s)*.008)
+    }
+
+    .nf {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: calc(var(--s)*.08) calc(var(--s)*.08) calc(var(--s)*.21);
+      color: var(--ink)
+    }
+
+    .nf::before {
+      content: '';
+      position: absolute;
+      inset: calc(var(--s)*.03);
+      border: 1px solid rgba(180, 40, 60, .38);
+      border-radius: 2px;
+      pointer-events: none
+    }
+
+    .nf::after {
+      content: '';
+      position: absolute;
+      inset: calc(var(--s)*.04);
+      border: 1px solid rgba(180, 40, 60, .16);
+      border-radius: 2px;
+      pointer-events: none
+    }
+
+    .nf h2 {
+      font-family: 'Dancing Script', cursive;
+      font-weight: 700;
+      font-size: calc(var(--s)*.092);
+      line-height: 1.1;
+      margin: 0;
+      color: var(--box);
+      text-decoration: underline wavy rgba(180, 40, 60, .35);
+      text-decoration-thickness: calc(var(--s)*.005);
+      text-underline-offset: calc(var(--s)*.016)
+    }
+
+    .orn {
+      display: block;
+      margin: calc(var(--s)*.015) 0 calc(var(--s)*.035);
+      color: var(--box);
+      font-size: calc(var(--s)*.04);
+      opacity: .85
+    }
+
+    .nf p {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 600;
+      font-size: calc(var(--s)*.052);
+      line-height: 1.38;
+      margin: 0 0 calc(var(--s)*.025)
+    }
+
+    .nf .sg {
+      margin-top: calc(var(--s)*.015);
+      font-family: 'Dancing Script', cursive;
+      font-weight: 700;
+      font-size: calc(var(--s)*.058);
+      color: var(--box);
+      line-height: 1.15
+    }
+
+    .hint {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
+      bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+      margin: 0;
+      color: var(--hint);
+      font-size: 1.2rem;
+      pointer-events: none;
+      transition: opacity .5s
+    }
+
+    .opened .hint {
+      opacity: 0
+    }
+
+    .heart {
+      position: fixed;
+      pointer-events: none;
+      z-index: 50;
+      font-size: var(--z);
+      color: var(--c);
+      opacity: 0;
+      animation: rise var(--d) ease-out forwards
+    }
+
+    @keyframes rise {
+      0% {
+        transform: translate(0, 0) scale(.3);
+        opacity: 0
+      }
+
+      12% {
+        opacity: 1
+      }
+
+      100% {
+        transform: translate(var(--x), var(--y)) scale(1) rotate(var(--r));
+        opacity: 0
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+
+      .world,
+      .pivot,
+      .note {
+        transition-duration: .01s;
+        transition-delay: 0s
+      }
+
+      .heart {
+        display: none
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sky" id="sky"></div>
+  <div class="stage" id="stage" tabindex="0" role="button" aria-label="Ouvrir la boîte" aria-expanded="false">
+    <div class="ground"></div>
+    <div class="world" id="world">
+      <div id="box"></div>
+      <div class="rug"></div>
+      <div class="note">
+        <div class="nf">
+          <div class="tape"></div>
+          <i class="d d1">✿</i><i class="d d2">✦</i><i class="d d3">♥</i>
+          <i class="d d6">✿</i><i class="d d7">♥</i><i class="d d8">✦</i>
+          <h2>Ma petite Nessou !</h2>
+          <span class="orn">♥</span>
+          <p>Un amour qui s'est envolé, mais des souvenirs qui resteront gravés à jamais.</p>
+          <p>Je ne regrette pas notre histoire, seulement certaines de mes erreurs. ❤️</p>
+          <span class="sg">Avec tendresse</span>
+          <div class="stamp"><span>♥</span><small>MERCI</small></div>
+        </div>
+        <div class="nb"></div>
+      </div>
+      <div class="pivot">
+        <div class="lid" id="lid">
+          <div class="bow">
+            <div class="pair">
+              <div class="loop l"></div>
+              <div class="loop r"></div>
+            </div>
+            <div class="pair b">
+              <div class="loop l"></div>
+              <div class="loop r"></div>
+            </div>
+            <div class="knot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="rough">
+      <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" />
+    </filter>
+  </svg>
+  <p class="hint" id="hint"> · Touche la boîte pour l’ouvrir · </p>
+
+  <script>
+    (function () {
+      var shade = [1, .8, .62, .84];
+      function face(parent, w, h, tf, cls, filt) {
+        var d = document.createElement('div');
+        d.className = 'f ' + cls;
+        d.style.width = w; d.style.height = h;
+        d.style.margin = 'calc(' + h + ' / -2) 0 0 calc(' + w + ' / -2)';
+        d.style.transform = tf;
+        if (filt) d.style.filter = 'brightness(' + filt + ')';
+        parent.appendChild(d); return d;
+      }
+      function sides(parent, W, H, st) {
+        [0, 90, 180, 270].forEach(function (a, i) {
+          var fo = face(parent, W, H, 'rotateY(' + a + 'deg) translateZ(calc(' + W + ' / 2))', 'rb', shade[i]); if (st && st[i]) fo.innerHTML = st[i];
+          face(parent, W, H, 'rotateY(' + (a + 180) + 'deg) translateZ(calc(' + W + ' / -2 + 3px))', 'in', shade[i]);
+        });
+      }
+      var box = document.getElementById('box'), lid = document.getElementById('lid');
+      var hs = '<b class="stk a">♥</b><b class="stk b">✦</b><b class="stk c">✿</b>';
+      sides(box, 'var(--s)', 'var(--h)', ['<b class="lbl">Pour Nessou ♥</b>' + hs, hs, '<b class="lbl">Avec amour ✦</b>' + hs, hs]);
+      face(box, 'var(--s)', 'var(--s)', 'rotateX(-90deg) translateZ(calc(var(--h) / 2))', 'floor', .5);
+      face(box, 'var(--s)', 'var(--s)', 'rotateX(90deg) translateZ(calc(var(--h) / -2 + 3px))', 'floor', .7);
+      sides(lid, 'var(--L)', 'var(--lh)');
+      face(lid, 'var(--L)', 'var(--L)', 'rotateX(90deg) translateZ(calc(var(--lh) / 2))', 'top', 1.12);
+      face(lid, 'var(--L)', 'var(--L)', 'rotateX(-90deg) translateZ(calc(var(--lh) / 2))', 'under', .8);
+
+      var stage = document.getElementById('stage'), world = document.getElementById('world');
+      (function () {
+        var sym = ['✦', '♥', '✿', '★', '♥', '✦'], col = ['#ff8fa3', '#ffd479', '#ffffff', '#ffb3c6', '#ffe3a3', '#c9b6ff'];
+        for (var i = 0; i < 20; i++) {
+          var a = Math.random() * 6.283, r = 62 + Math.random() * 34, f = document.createElement('div');
+          f.className = 'fx';
+          f.style.setProperty('--x', Math.cos(a) * r); f.style.setProperty('--z', Math.sin(a) * r); f.style.setProperty('--y', -75 + Math.random() * 105);
+          f.innerHTML = '<div class="bb"><span class="sp" style="color:' + col[i % 6] + ';font-size:' + (4 + Math.random() * 5) + 'em;animation-delay:' + (-Math.random() * 4) + 's">' + sym[i % 6] + '</span></div>';
+          world.appendChild(f);
+        }
+        var sky = document.getElementById('sky'), pc = ['#ffd479', '#fff', '#ffb3c6', '#c9b6ff'];
+        for (var j = 0; j < 38; j++) {
+          var t = document.createElement('i'); t.textContent = j % 3 ? '✦' : '·';
+          t.style.left = Math.random() * 100 + '%'; t.style.top = Math.random() * 100 + '%';
+          t.style.fontSize = (7 + Math.random() * 10) + 'px'; t.style.color = pc[j % 4];
+          t.style.setProperty('--d', (2.5 + Math.random() * 3) + 's'); t.style.animationDelay = (-Math.random() * 4) + 's';
+          sky.appendChild(t);
+        }
+        for (var k = 0; k < 12; k++) {
+          var h = document.createElement('b'); h.textContent = '♥';
+          h.style.left = Math.random() * 100 + '%'; h.style.fontSize = (12 + Math.random() * 16) + 'px'; h.style.color = ['#ff8fa3', '#ffb3c6', '#ffd479'][k % 3];
+          h.style.setProperty('--d', (9 + Math.random() * 8) + 's'); h.style.animationDelay = (-Math.random() * 14) + 's';
+          sky.appendChild(h);
+        }
+      })();
+      var rx = -22, ry = -30, sx = 0, sy = 0, drag = false, moved = 0, last = null;
+      var pauseUntil = 0, lastT = performance.now();
+      function tick(t) {
+        var dt = Math.min(50, t - lastT); lastT = t;
+        if (!world.classList.contains('open') && !drag && t > pauseUntil) {
+          if (!world.classList.contains('drag')) world.classList.add('drag');
+          ry += dt * .022; apply();
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      function apply() {world.style.transform = 'translateY(46px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)'; world.style.setProperty('--rx', rx); world.style.setProperty('--ry', ry)}
+      var colors = ['#ff6b81', '#ffd6a5', '#ffffff', '#f0cf94', '#e54a27'];
+      function burst() {
+        var r = stage.getBoundingClientRect(), cx = r.width / 2, cy = r.height * .42;
+        for (var i = 0; i < 48; i++) {
+          var h = document.createElement('span'), a = -Math.random() * Math.PI, dist = 130 + Math.random() * Math.min(innerHeight * .55, 380);
+          h.className = 'heart'; h.textContent = '♥';
+          h.style.left = cx + 'px'; h.style.top = cy + 'px';
+          h.style.setProperty('--x', (Math.cos(a) * dist * 1.1) + 'px');
+          h.style.setProperty('--y', (Math.sin(a) * dist) + 'px');
+          h.style.setProperty('--r', (Math.random() * 80 - 40) + 'deg');
+          h.style.setProperty('--z', (14 + Math.random() * 26) + 'px');
+          h.style.setProperty('--c', colors[Math.floor(Math.random() * colors.length)]);
+          h.style.setProperty('--d', (2.2 + Math.random() * 1.6) + 's');
+          h.style.animationDelay = (Math.random() * .5) + 's';
+          document.body.appendChild(h);
+          setTimeout(function (el) {el.remove()}, 4500, h);
+        }
+      }
+      function toggle() {
+        var open = world.classList.toggle('open');
+        document.body.classList.toggle('opened', open);
+        stage.setAttribute('aria-expanded', open);
+        stage.setAttribute('aria-label', open ? 'Fermer la boîte' : 'Ouvrir la boîte');
+        if (open) {world.classList.remove('drag'); rx = -14; ry = -6 + 360 * Math.round((ry + 6) / 360); apply(); setTimeout(burst, 1500)} else {pauseUntil = performance.now() + 2000}
+      }
+      stage.addEventListener('pointerdown', function (e) {drag = true; moved = 0; last = [e.clientX, e.clientY]; world.classList.add('drag'); stage.setPointerCapture(e.pointerId)});
+      stage.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        var dx = e.clientX - last[0], dy = e.clientY - last[1];
+        last = [e.clientX, e.clientY]; moved += Math.abs(dx) + Math.abs(dy);
+        ry += dx * .45; rx = Math.max(-70, Math.min(12, rx - dy * .35)); apply();
+      });
+      function end() {if (!drag) return; drag = false; pauseUntil = performance.now() + 1500; world.classList.remove('drag'); if (moved < 8) toggle()}
+      stage.addEventListener('pointerup', end);
+      stage.addEventListener('pointercancel', function () {drag = false; world.classList.remove('drag')});
+      stage.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {e.preventDefault(); toggle()}
+        if (e.key === 'ArrowLeft') {ry -= 15; apply()} if (e.key === 'ArrowRight') {ry += 15; apply()}
+      });
+    })();
+  </script>
+</body>
+
+</html>
