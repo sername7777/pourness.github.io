@@ -8,7 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Cormorant+Garamond:wght@500;600&display=swap"
     rel="stylesheet">
-  <style>
+  <style id="css">
     :root {
       --bg1: #06141B;
       --bg2: #16304a;
@@ -677,6 +677,204 @@
       line-height: 1.15
     }
 
+
+    .txt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity .35s
+    }
+
+    .txt.fade {
+      opacity: 0
+    }
+
+    .nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .6s 2.2s;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: var(--hint)
+    }
+
+    .opened .nav {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .nav button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--hint);
+      background: transparent;
+      color: var(--hint);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: manipulation
+    }
+
+    .nav button:disabled {
+      opacity: .25;
+      cursor: default
+    }
+
+    .nav .lab {
+      min-width: 150px;
+      text-align: center;
+      font-size: 1.15rem;
+      line-height: 1.2
+    }
+
+    .nav .lab small {
+      display: block;
+      font-size: .85rem;
+      opacity: .8
+    }
+
+
+    .edbtn {
+      position: fixed;
+      top: calc(12px + env(safe-area-inset-top, 0px));
+      right: 12px;
+      z-index: 30;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--hint);
+      background: var(--bg1);
+      color: var(--hint);
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: manipulation
+    }
+
+    .ed {
+      position: fixed;
+      z-index: 40;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: min(360px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: calc(14px + env(safe-area-inset-top, 0px)) 14px calc(14px + env(safe-area-inset-bottom, 0px));
+      background: var(--bg1);
+      color: var(--hint);
+      border-left: 1px solid var(--hint);
+      overflow-y: auto;
+      user-select: text;
+      -webkit-user-select: text;
+      touch-action: pan-y;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.05rem
+    }
+
+    .ed[hidden] {
+      display: none
+    }
+
+    .ed * {
+      user-select: text;
+      -webkit-user-select: text
+    }
+
+    .ed .hd {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .ed .hd b {
+      flex: 1;
+      font-size: 1.3rem
+    }
+
+    .ed .st {
+      font-size: .9rem;
+      opacity: .85
+    }
+
+    .ed input,
+    .ed textarea,
+    .ed button {
+      font: inherit;
+      font-size: 16px;
+      color: inherit;
+      background: transparent;
+      border: 1px solid var(--hint);
+      border-radius: 8px;
+      padding: 8px 10px;
+      width: 100%
+    }
+
+    .ed textarea {
+      resize: vertical;
+      min-height: 150px;
+      line-height: 1.35
+    }
+
+    .ed button {
+      width: auto;
+      cursor: pointer;
+      touch-action: manipulation
+    }
+
+    .ed .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    .ed .tabs button {
+      min-width: 40px;
+      padding: 6px 10px
+    }
+
+    .ed .tabs button.on {
+      background: var(--hint);
+      color: var(--bg1)
+    }
+
+    .ed .row {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .ed .cnt {
+      font-size: .9rem;
+      opacity: .85
+    }
+
+    .ed .cnt.bad {
+      color: #ff8fa3;
+      opacity: 1
+    }
+
+    @media (max-width:700px) {
+      .ed {
+        top: auto;
+        width: 100%;
+        height: 58vh;
+        border-left: 0;
+        border-top: 1px solid var(--hint);
+        border-radius: 16px 16px 0 0
+      }
+    }
+
     .hint {
       position: absolute;
       left: 0;
@@ -748,11 +946,7 @@
           <div class="tape"></div>
           <i class="d d1">✿</i><i class="d d2">✦</i><i class="d d3">♥</i>
           <i class="d d6">✿</i><i class="d d7">♥</i><i class="d d8">✦</i>
-          <h2>Ma petite Nessou !</h2>
-          <span class="orn">♥</span>
-          <p>Un amour qui s'est envolé, mais des souvenirs qui resteront gravés à jamais.</p>
-          <p>Je ne regrette pas notre histoire, seulement certaines de mes erreurs. ❤️</p>
-          <span class="sg">Avec tendresse</span>
+          <div class="txt" id="txt"></div>
           <div class="stamp"><span>♥</span><small>MERCI</small></div>
         </div>
         <div class="nb"></div>
@@ -782,8 +976,42 @@
   </svg>
   <p class="hint" id="hint"> · Touche la boîte pour l’ouvrir · Même si les jours passent, je te souhaite une belle journée. Prends soin de toi. ❤️</p>
 
-  <script>
+  <div class="nav" id="nav">
+    <button id="prev" aria-label="Mot précédent">‹</button>
+    <div class="lab" id="lab"></div>
+    <button id="next" aria-label="Mot suivant">›</button>
+  </div>
+
+  <button class="edbtn" id="edbtn" hidden aria-label="Écrire les mots">✎</button>
+  <aside class="ed" id="ed" hidden>
+    <div class="hd"><b>Écrire les mots</b><span class="st" id="edst"></span><button id="edx" aria-label="Fermer">×</button></div>
+    <div class="row"><label for="edstart">Premier mot le</label><input type="date" id="edstart"></div>
+    <div class="tabs" id="edtabs"></div>
+    <input id="edt" placeholder="Titre (ex : Ma petite Nessou !)" maxlength="60">
+    <textarea id="edp" placeholder="Ton message. Une ligne = un paragraphe."></textarea>
+    <div class="cnt" id="edc"></div>
+    <input id="eds" placeholder="Signature (ex : Avec tendresse)" maxlength="40">
+    <div class="row"><button id="edsave">Enregistrer</button><button id="eddel">Supprimer ce jour</button></div>
+  </aside>
+
+  <script type="application/json" id="data">{"start": "2026-11-17", "messages": [{"t": "Ma petite Nessou !", "p": ["Un amour qui s’est envolé, mais des souvenirs qui resteront gravés à jamais.", "Je ne regrette pas notre histoire, seulement certaines de mes erreurs. ❤️"], "sg": "Avec tendresse"}, {"t": "Un petit coucou", "p": ["J’espère que ta journée commence doucement. Tu mérites des matins calmes et des sourires sincères.", "Prends le temps de respirer, tout va bien se passer."], "sg": "Avec tendresse"}, {"t": "Tu es forte", "p": ["Je n’ai jamais douté de ta force. Même quand c’était difficile, tu as toujours su te relever.", "Continue d’avancer à ton rythme."], "sg": "Avec tendresse"}, {"t": "Merci", "p": ["Merci pour les rires, surtout les fous rires, ceux qui faisaient oublier tout le reste.", "Ils font partie des plus beaux souvenirs que je garde."], "sg": "Avec tendresse"}, {"t": "Pardon", "p": ["Si je t’ai blessée un jour, je m’en excuse du fond du cœur.", "J’espère que tu sais que ce n’était jamais voulu."], "sg": "Avec tendresse"}, {"t": "Pour toi", "p": ["Fais-toi un petit plaisir aujourd’hui : un café, une balade, ta musique préférée.", "Tu le mérites plus que tu ne le crois."], "sg": "Avec tendresse"}, {"t": "Toujours", "p": ["Quoi qu’il arrive, je te souhaite le meilleur, vraiment.", "Prends soin de toi, ma petite Nessou. ❤️"], "sg": "Avec tendresse"}]}</script>
+  <script id="app">
     (function () {
+      /* Copie propre de la page d'origine, avant que le script ne construise quoi que ce soit */
+      var SRC = (function () {
+        var c = document.documentElement.cloneNode(true);
+        Array.prototype.slice.call(c.attributes).forEach(function (at) {if (at.name !== 'lang') c.removeAttribute(at.name)});
+        var bd = c.querySelector('body'); if (bd) Array.prototype.slice.call(bd.attributes).forEach(function (at) {bd.removeAttribute(at.name)});
+        Array.prototype.slice.call(c.querySelectorAll('script,style,link,meta')).forEach(function (n) {
+          var t = n.tagName.toLowerCase(), keep = false;
+          if (t === 'script') keep = n.id === 'app' || n.id === 'data';
+          else if (t === 'style') keep = n.id === 'css';
+          else if (t === 'link') keep = /fonts\.googleapis\.com/.test(n.getAttribute('href') || '');
+          else keep = n.hasAttribute('charset') || n.getAttribute('name') === 'viewport';
+          if (!keep) n.parentNode.removeChild(n);
+        });
+        return '<!DOCTYPE html>\n' + c.outerHTML;
+      })();
       var shade = [1, .8, .62, .84];
       function face(parent, w, h, tf, cls, filt) {
         var d = document.createElement('div');
@@ -885,6 +1113,148 @@
         if (e.key === 'Enter' || e.key === ' ') {e.preventDefault(); toggle()}
         if (e.key === 'ArrowLeft') {ry -= 15; apply()} if (e.key === 'ArrowRight') {ry += 15; apply()}
       });
+
+      /* ====== LES MOTS (stockés dans le bloc #data, modifiables avec le bouton ✎) ====== */
+      var DATA = null;
+      try {DATA = JSON.parse(document.getElementById('data').textContent)} catch (e) {}
+      if (!DATA || !DATA.messages || !DATA.messages.length) DATA = {start: '2026-11-17', messages: [{t: 'Ma petite Nessou !', p: ['\u2665'], sg: 'Avec tendresse'}]};
+
+      var txt = document.getElementById('txt'), lab = document.getElementById('lab');
+      var prevB = document.getElementById('prev'), nextB = document.getElementById('next');
+      var viewAll = false, edOpen = false;
+
+      function calcAvail() {
+        var p = String(DATA.start).split('-'), a = new Date(+p[0], +p[1] - 1, +p[2]), n = new Date();
+        n = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+        var d = Math.round((n - a) / 86400000) + 1;
+        if (isNaN(d)) d = 1;
+        return Math.max(1, Math.min(DATA.messages.length, d));
+      }
+      var avail = calcAvail(), cur = avail - 1;
+      function limit() {return viewAll ? DATA.messages.length : avail}
+
+      function render() {
+        if (cur > limit() - 1) cur = limit() - 1;
+        if (cur < 0) cur = 0;
+        var m = DATA.messages[cur] || {t: '', p: [], sg: ''};
+        txt.textContent = '';
+        var h = document.createElement('h2'); h.textContent = m.t; txt.appendChild(h);
+        var o = document.createElement('span'); o.className = 'orn'; o.textContent = '\u2665'; txt.appendChild(o);
+        m.p.forEach(function (x) {var e = document.createElement('p'); e.textContent = x; txt.appendChild(e)});
+        var g = document.createElement('span'); g.className = 'sg'; g.textContent = m.sg; txt.appendChild(g);
+        var L = limit(), sub;
+        if (viewAll) sub = cur >= avail ? 'Aper\u00e7u (pas encore d\u00e9bloqu\u00e9)' : 'Aper\u00e7u';
+        else sub = cur === avail - 1 ? (avail < DATA.messages.length ? 'Le prochain mot arrive demain' : 'Le dernier mot') : 'Un ancien mot';
+        lab.innerHTML = 'Jour ' + (cur + 1) + ' / ' + L + '<small>' + sub + '</small>';
+        prevB.disabled = cur <= 0; nextB.disabled = cur >= L - 1;
+      }
+      function setCur(n) {cur = n; render(); if (edOpen) {fillFields(); renderTabs()}}
+      function go(dir) {
+        var n = cur + dir; if (n < 0 || n >= limit()) return;
+        txt.classList.add('fade');
+        setTimeout(function () {setCur(n); txt.classList.remove('fade')}, 350);
+      }
+      prevB.addEventListener('click', function () {go(-1)});
+      nextB.addEventListener('click', function () {go(1)});
+      render();
+
+      /* ====== ÉDITEUR (visible seulement pour le propriétaire de la page) ====== */
+      var $ = function (id) {return document.getElementById(id)};
+      var edbtn = $('edbtn'), ed = $('ed'), edst = $('edst'), edtabs = $('edtabs'), edt = $('edt'), edp = $('edp'), eds = $('eds'), edc = $('edc'), edstart = $('edstart'), eddel = $('eddel');
+      var art = null, saveT = null, dirty = false, delArmed = false, MAXC = 240;
+
+      function setStatus(t) {edst.textContent = t}
+      function renderTabs() {
+        edtabs.textContent = '';
+        DATA.messages.forEach(function (m, i) {
+          var b = document.createElement('button'); b.textContent = i + 1; b.className = i === cur ? 'on' : '';
+          b.addEventListener('click', function () {setCur(i)}); edtabs.appendChild(b);
+        });
+        var add = document.createElement('button'); add.textContent = '+'; add.setAttribute('aria-label', 'Ajouter un jour');
+        add.addEventListener('click', function () {
+          DATA.messages.push({t: '', p: [''], sg: 'Avec tendresse'});
+          setCur(DATA.messages.length - 1); edt.focus();
+        });
+        edtabs.appendChild(add);
+      }
+      function updCount() {
+        var n = (DATA.messages[cur].p || []).join('').length;
+        edc.textContent = n + ' / ' + MAXC + ' caract\u00e8res' + (n > MAXC ? ' \u2014 un peu long pour le papier' : '');
+        edc.className = 'cnt' + (n > MAXC ? ' bad' : '');
+      }
+      function fillFields() {
+        var m = DATA.messages[cur];
+        edt.value = m.t; edp.value = m.p.join('\n'); eds.value = m.sg; edstart.value = DATA.start;
+        delArmed = false; eddel.textContent = 'Supprimer ce jour'; eddel.disabled = DATA.messages.length < 2;
+        updCount();
+      }
+      function onEdit() {
+        var m = DATA.messages[cur];
+        m.t = edt.value; m.sg = eds.value;
+        m.p = edp.value.split(/\n+/).map(function (x) {return x.trim()}).filter(Boolean);
+        render(); updCount(); schedule();
+      }
+      [edt, edp, eds].forEach(function (e) {e.addEventListener('input', onEdit); e.addEventListener('blur', function () {if (dirty) save()})});
+      edstart.addEventListener('change', function () {if (edstart.value) {DATA.start = edstart.value; avail = calcAvail(); schedule()}});
+      eddel.addEventListener('click', function () {
+        if (!delArmed) {delArmed = true; eddel.textContent = 'Confirmer ?'; return}
+        DATA.messages.splice(cur, 1); avail = calcAvail(); setCur(Math.max(0, cur - 1)); schedule();
+      });
+      $('edsave').addEventListener('click', function () {save()});
+
+      function openEd() {
+        edOpen = true; viewAll = true; ed.hidden = false; edbtn.hidden = true;
+        if (!world.classList.contains('open')) toggle();
+        render(); fillFields(); renderTabs();
+      }
+      function closeEd() {
+        edOpen = false; viewAll = false; ed.hidden = true; edbtn.hidden = false;
+        try {sessionStorage.removeItem('ed')} catch (e) {}
+        avail = calcAvail(); if (cur > avail - 1) cur = avail - 1; render();
+        if (dirty) save();
+      }
+      edbtn.addEventListener('click', openEd); $('edx').addEventListener('click', closeEd);
+
+      /* Reconstruit la page complète (source d'origine + nouveaux textes) */
+      var DATA_RE = new RegExp('<scr' + 'ipt type="application/json" id="data">[\\s\\S]*?<\\/scr' + 'ipt>');
+      function buildHtml() {
+        var msgs = DATA.messages.slice();
+        while (msgs.length > 1 && !msgs[msgs.length - 1].t && !msgs[msgs.length - 1].p.length) msgs.pop();
+        var json = JSON.stringify({start: DATA.start, messages: msgs}).replace(/</g, '\\u003c');
+        var open = '<scr' + 'ipt type="application/json" id="data">', close = '<\\/scr' + 'ipt>';
+        return SRC.replace(DATA_RE, function () {return open + json + close.replace('\\', '')});
+      }
+      function valid(h) {
+        return typeof h === 'string' && h.indexOf('<!DOCTYPE html>') === 0 && h.indexOf('id="app"') > 0 && h.indexOf('id="data"') > 0 && h.indexOf('id="stage"') > 0 && h.length < 4e6;
+      }
+      function schedule() {dirty = true; setStatus('\u2026'); clearTimeout(saveT); saveT = setTimeout(save, 3500)}
+      async function save() {
+        if (!art) return;
+        clearTimeout(saveT);
+        var h = buildHtml();
+        if (!valid(h)) {setStatus('Erreur'); return}
+        setStatus('Enregistrement\u2026');
+        try {sessionStorage.setItem('ed', JSON.stringify({i: cur}))} catch (e) {}
+        try {await art.publish(h); dirty = false; setStatus('Enregistr\u00e9 \u2713')}
+        catch (err) {
+          var c = err && err.code;
+          if (c === 'conflict') return;
+          setStatus(c === 'not_writer' || c === 'not_granted' ? 'Lecture seule' : 'Pas enregistr\u00e9 (' + (c || 'erreur') + ')');
+        }
+      }
+      (async function () {
+        try {
+          if (!window.claude || !claude.use) return;
+          var u = await claude.use('user'), a = await claude.use('artifact');
+          if (!u || !a) return;
+          var ok = await u.isOwner();
+          if (!ok) {try {ok = await u.canEdit()} catch (e) {}}
+          if (!ok) return;
+          art = a; edbtn.hidden = false;
+          var r = null; try {r = JSON.parse(sessionStorage.getItem('ed'))} catch (e) {}
+          if (r) {cur = Math.min(r.i || 0, DATA.messages.length - 1); openEd(); setStatus('Enregistr\u00e9 \u2713')}
+        } catch (e) {}
+      })();
     })();
   </script>
 </body>
